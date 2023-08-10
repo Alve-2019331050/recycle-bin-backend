@@ -1,5 +1,8 @@
 const app = require("./app");
+const express = require('express');
 const connection = require("./database");
+const categoryRoutes = require('./routes/categoryRoutes');
+const morgan = require('morgan');
 
 //config
 if(process.env.NODE_ENV != 'PRODUCTION'){
@@ -8,8 +11,15 @@ if(process.env.NODE_ENV != 'PRODUCTION'){
     })
 }
 
+//middlewares
+app.use(express.json());
+app.use(morgan('dev'));
+
 //connect db
 connection.connect();
+
+//routes
+app.use('/api/v1/category',categoryRoutes);
 
 app.get('/',(req,res)=>{
     connection.query('select * from user',(err,rows,fields)=>{
