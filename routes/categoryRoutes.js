@@ -1,6 +1,4 @@
-createCategoryController = require('../controllers/categoryController');
-getCategoriesController = require('../controllers/categoryController');
-singleCategoryController = require('../controllers/categoryController');
+const categoryController = require('../controllers/categoryController');
 
 const express = require('express');
 
@@ -8,12 +6,12 @@ const router = express.Router();
 
 //routes
 //create
-router.post('/create-category',createCategoryController);
+router.post('/create-category',categoryController.createCategoryController);
 
 //get all categories
-router.get('/allcategories',getCategoriesController);
+router.get('/allcategories',categoryController.getCategoriesController);
 
 //single category
-router.get('/single-category/:slug',singleCategoryController);
+router.get('/single-category/:slug',categoryController.singleCategoryController);
 
 module.exports = router;

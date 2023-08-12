@@ -1,6 +1,6 @@
 const connection = require('../database');
 
-module.exports = createCategoryController = (req,res) => {
+module.exports.createCategoryController = (req,res) => {
     try {
         const {name,slug} = req.body;
         if(!name){
@@ -24,7 +24,7 @@ module.exports = createCategoryController = (req,res) => {
                         return res.status(401).send({message:'error in database',newerr});
                     }
                     else{
-                        return res.status(201).send({
+                        return res.status(200).send({
                             success:true,
                             message:'Created Category Successfully',
                             category: newdata
@@ -41,9 +41,9 @@ module.exports = createCategoryController = (req,res) => {
             message:'Error in creating category'
         })
     }
-}
+};
 
-module.exports = getCategoriesController = (req,res)=>{
+module.exports.getCategoriesController = (req,res)=>{
     try {
         var sql = 'select * from category';
         connection.query(sql,(err,categories)=>{
@@ -70,9 +70,9 @@ module.exports = getCategoriesController = (req,res)=>{
             message:"Error getting all categories"
         });
     }
-}
+};
 
-module.exports = singleCategoryController = (req,res)=>{
+module.exports.singleCategoryController = (req,res)=>{
     try {
         const {slug} = req.params;
         var sql = 'select * from category where slug=?';
