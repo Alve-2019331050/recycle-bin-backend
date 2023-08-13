@@ -82,6 +82,81 @@ module.exports.getProductController = (req,res)=>{
     }
 }
 
+module.exports.getFilteredProductController = (req,res)=>{
+    
+    try {
+        const category = req.query.category;
+        const price = req.query.price;
+        // console.log(category,price);
+        var sql = 'select * from product';
+        var categoryArray = [];
+        if(category && category.length) 
+            categoryArray = category.split(',');
+        var priceArray = [];
+        if(price && price.length)
+            priceArray = price.split(',');
+        if(categoryArray.length || priceArray.length)
+            sql = sql.concat(' where');
+        categoryArray.map((cat,index)=>{
+            if(index === 0)
+                sql = sql.concat(' (');
+            else
+                sql = sql.concat(' or ');
+            sql = sql.concat('category=?');
+        });
+        if(categoryArray.length)
+            sql = sql.concat(')');
+        if(priceArray.length){
+            sql = sql.concat(' ');
+            if(categoryArray.length)
+                sql = sql.concat('and ');
+            sql = sql.concat('(price>=? and price<=?)');
+        }
+        console.log(sql);
+        var values = [];
+        categoryArray.map((cat,index)=>{
+            values.push(cat);
+        });
+        if(priceArray.length){
+            var mn = 1000000, mx = 0;
+            priceArray.map((str,index)=>{
+                var arr = str.split('-');
+                mn = Math.min(mn,arr[0]);
+                if(arr[1] != 'above')
+                    mx = Math.max(mx,arr[1]);
+                else
+                    mx = 1000000;
+            });
+            console.log(mn,mx);
+            values.push(mn);
+            values.push(mx);
+        }
+        connection.query(sql,values,(err,products)=>{
+            if(err){
+                res.status(501).send({
+                    success:false,
+                    message:'Product fetch failed',
+                    err
+                });
+            }
+            else{
+                res.status(200).send({
+                    success:true,
+                    message:'All products found successfully',
+                    products
+                });
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            success:false,
+            message:'Error in getting products',
+            error: error.message
+        });
+    }
+}
+
 module.exports.getSingleProductController = (req,res)=>{
     try {
         const sql = 'select * from product where slug=?';

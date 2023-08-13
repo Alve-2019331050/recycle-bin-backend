@@ -5,6 +5,7 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const morgan = require('morgan');
 const cors = require('cors');
 const productRoutes = require('./routes/productRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 //config
 if(process.env.NODE_ENV != 'PRODUCTION'){
@@ -25,6 +26,7 @@ connection.connect();
 //routes
 app.use('/api/v1/category',categoryRoutes);
 app.use('/api/v1/product',productRoutes);
+app.use('/api/v1/auth',authRoutes);
 
 app.get('/',(req,res)=>{
     connection.query('select * from user',(err,rows,fields)=>{

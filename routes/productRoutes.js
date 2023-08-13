@@ -6,6 +6,7 @@ const router = express.Router();
 //routes
 router.post('/create-product',upload.single("photo"),productController.createProductController);
 router.get('/get-product',productController.getProductController);
+router.get('/get-filtered-product',productController.getFilteredProductController);
 router.get('/get-product/:slug',productController.getSingleProductController);
 
 module.exports = router;
