@@ -88,6 +88,12 @@ module.exports.loginController = async(req,res)=>{
             if(err){
                 return res.status(404).send({
                     success:false,
+                    message:'Something went wrong'
+                });
+            }
+            if(!data.length){
+                return res.status(200).send({
+                    success:false,
                     message:'Email is not registered'
                 });
             }
@@ -103,6 +109,7 @@ module.exports.loginController = async(req,res)=>{
                 success:true,
                 message:'login successful',
                 user:{
+                    u_id: data[0].u_id,
                     name: data[0].name,
                     email: data[0].email,
                     phone: data[0].phone,
@@ -118,6 +125,67 @@ module.exports.loginController = async(req,res)=>{
             success:false,
             message:'Error in login',
             error
+        });
+    }
+};
+
+module.exports.logoutController = async(req,res)=>{
+    try {
+        res.cookie("token",null,{
+            expiresIn: new Date(Date.now()),
+            httpOnly:true
+        });
+        res.status(201).send({
+            success:true,
+            message:'Log out Successfully'
+        })
+    } catch (error) {
+        res.status(500).send({
+            success:false,
+            message:error.message
+        });
+    }
+};
+
+module.exports.userInfoController = (req,res)=>{
+    try {
+        const {u_id} = req.params;
+        const sql = 'select name,phone,avatar from user where u_id=?';
+        connection.query(sql,u_id,(err,data)=>{
+            if(err){
+                console.log(err);
+                res.status(501).send({
+                    success:false,
+                    message:err
+                });
+            }
+            else{
+                const newSql = 'select review,reviewcnt from review where s_id=?';
+                connection.query(newSql,u_id,(newErr,newData)=>{
+                    if(newErr){
+                        console.log(newErr);
+                        res.status(502).send({
+                            success:false,
+                            message:newErr
+                        });
+                    }
+                    else{
+                        res.status(200).send({
+                            success:true,
+                            message:'User found',
+                            data,
+                            review: (newData.length?newData[0].review:0),
+                            reviewcnt: (newData.length?newData[0].reviewcnt:1)
+                        });
+                    }
+                });
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            success:false,
+            message:error
         });
     }
 }

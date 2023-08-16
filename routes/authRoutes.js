@@ -8,5 +8,9 @@ const router = express.Router();
 router.post('/register',upload.single("avatar"),authController.registerController);
 //login
 router.post('/login',authController.loginController);
+//logout
+router.get('/logout',authController.logoutController);
+//getUserInfo
+router.get('/user-info/:u_id',authController.userInfoController);
 
 module.exports = router;

@@ -3,7 +3,7 @@ const path = require('path');
 
 module.exports.createProductController = (req,res) => {
     try {
-        const {name,slug,description,price,category} = req.body
+        const {name,slug,description,price,category,id} = req.body
         const fileName = req.file.filename;
         const fileUrl = path.join(fileName);
         switch(true){
@@ -19,14 +19,16 @@ module.exports.createProductController = (req,res) => {
                 return res.status(500).send({error:'category is required'});
         }
 
-        const sql = 'insert into product (name,slug,description,price,category,photo) values(?,?,?,?,?,?)';
+        const sql = 'insert into product (name,slug,description,price,category,photo,s_id,status) values(?,?,?,?,?,?,?,?)';
         connection.query(sql,[
             name,
             slug,
             description,
             price,
             category,
-            fileUrl
+            fileUrl,
+            id,
+            'Pending'
         ],(err,data) => {
             if(err){
                 return res.status(501).send({

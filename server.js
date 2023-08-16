@@ -6,6 +6,8 @@ const morgan = require('morgan');
 const cors = require('cors');
 const productRoutes = require('./routes/productRoutes');
 const authRoutes = require('./routes/authRoutes');
+const cartRoutes = require('./routes/cartRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 //config
 if(process.env.NODE_ENV != 'PRODUCTION'){
@@ -27,6 +29,8 @@ connection.connect();
 app.use('/api/v1/category',categoryRoutes);
 app.use('/api/v1/product',productRoutes);
 app.use('/api/v1/auth',authRoutes);
+app.use('/api/v1/cart',cartRoutes);
+app.use('/api/v1/review',reviewRoutes);
 
 app.get('/',(req,res)=>{
     connection.query('select * from user',(err,rows,fields)=>{
