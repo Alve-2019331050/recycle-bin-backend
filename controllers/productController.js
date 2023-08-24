@@ -1,26 +1,26 @@
 const connection = require('../database');
 const path = require('path');
 
-module.exports.createProductController = (req,res) => {
+module.exports.createProductController = (req, res) => {
     try {
-        const {name,slug,description,price,category,id} = req.body
+        const { name, slug, description, price, category, id } = req.body
         const fileName = req.file.filename;
         const fileUrl = path.join(fileName);
-        switch(true){
+        switch (true) {
             case !name:
-                return res.status(500).send({error:'name is required'});
+                return res.status(500).send({ error: 'name is required' });
             case !slug:
-                return res.status(500).send({error:'slug is required'});
+                return res.status(500).send({ error: 'slug is required' });
             case !description:
-                return res.status(500).send({error:'description is required'});
+                return res.status(500).send({ error: 'description is required' });
             case !price:
-                return res.status(500).send({error:'price is required'});
+                return res.status(500).send({ error: 'price is required' });
             case !category:
-                return res.status(500).send({error:'category is required'});
+                return res.status(500).send({ error: 'category is required' });
         }
 
         const sql = 'insert into product (name,slug,description,price,category,photo,s_id,status) values(?,?,?,?,?,?,?,?)';
-        connection.query(sql,[
+        connection.query(sql, [
             name,
             slug,
             description,
@@ -29,122 +29,122 @@ module.exports.createProductController = (req,res) => {
             fileUrl,
             id,
             'Pending'
-        ],(err,data) => {
-            if(err){
+        ], (err, data) => {
+            if (err) {
                 return res.status(501).send({
-                    success:false,
+                    success: false,
                     err,
-                    message:'Error in creating product'
+                    message: 'Error in creating product'
                 });
             }
-            else{
+            else {
                 return res.status(201).send({
-                    success:true,
+                    success: true,
                     data,
-                    message:'Created product successfully'
+                    message: 'Created product successfully'
                 });
             }
         })
     } catch (error) {
         console.log(error);
         res.status(500).send({
-            success:false,
+            success: false,
             error,
-            message:'Error in creating product'
+            message: 'Error in creating product'
         });
     }
 }
 
-module.exports.getProductController = (req,res)=>{
+module.exports.getProductController = (req, res) => {
     try {
         const sql = 'select * from product';
-        connection.query(sql,(err,products)=>{
-            if(err){
-                res.status(501).send({
-                    success:false,
-                    message:'Product fetch failed',
+        connection.query(sql, (err, products) => {
+            if (err) {
+                return res.status(501).send({
+                    success: false,
+                    message: 'Product fetch failed',
                     err
                 });
             }
-            else{
-                res.status(200).send({
-                    success:true,
-                    message:'All products found successfully',
+            else {
+                return res.status(200).send({
+                    success: true,
+                    message: 'All products found successfully',
                     products
                 });
             }
         })
     } catch (error) {
         console.log(error);
-        res.status(500).send({
-            success:false,
-            message:'Error in getting products',
+        return res.status(500).send({
+            success: false,
+            message: 'Error in getting products',
             error: error.message
         });
     }
 }
 
-module.exports.getFilteredProductController = (req,res)=>{
-    
+module.exports.getFilteredProductController = (req, res) => {
+
     try {
         const category = req.query.category;
         const price = req.query.price;
         // console.log(category,price);
         var sql = 'select * from product';
         var categoryArray = [];
-        if(category && category.length) 
+        if (category && category.length)
             categoryArray = category.split(',');
         var priceArray = [];
-        if(price && price.length)
+        if (price && price.length)
             priceArray = price.split(',');
-        if(categoryArray.length || priceArray.length)
+        if (categoryArray.length || priceArray.length)
             sql = sql.concat(' where');
-        categoryArray.map((cat,index)=>{
-            if(index === 0)
+        categoryArray.map((cat, index) => {
+            if (index === 0)
                 sql = sql.concat(' (');
             else
                 sql = sql.concat(' or ');
             sql = sql.concat('category=?');
         });
-        if(categoryArray.length)
+        if (categoryArray.length)
             sql = sql.concat(')');
-        if(priceArray.length){
+        if (priceArray.length) {
             sql = sql.concat(' ');
-            if(categoryArray.length)
+            if (categoryArray.length)
                 sql = sql.concat('and ');
             sql = sql.concat('(price>=? and price<=?)');
         }
         console.log(sql);
         var values = [];
-        categoryArray.map((cat,index)=>{
+        categoryArray.map((cat, index) => {
             values.push(cat);
         });
-        if(priceArray.length){
+        if (priceArray.length) {
             var mn = 1000000, mx = 0;
-            priceArray.map((str,index)=>{
+            priceArray.map((str, index) => {
                 var arr = str.split('-');
-                mn = Math.min(mn,arr[0]);
-                if(arr[1] != 'above')
-                    mx = Math.max(mx,arr[1]);
+                mn = Math.min(mn, arr[0]);
+                if (arr[1] != 'above')
+                    mx = Math.max(mx, arr[1]);
                 else
                     mx = 1000000;
             });
-            console.log(mn,mx);
+            console.log(mn, mx);
             values.push(mn);
             values.push(mx);
         }
-        connection.query(sql,values,(err,products)=>{
-            if(err){
+        connection.query(sql, values, (err, products) => {
+            if (err) {
                 res.status(501).send({
-                    success:false,
-                    message:'Product fetch failed',
+                    success: false,
+                    message: 'Product fetch failed',
                     err
                 });
             }
-            else{
+            else {
                 res.status(200).send({
-                    success:true,
-                    message:'All products found successfully',
+                    success: true,
+                    message: 'All products found successfully',
                     products
                 });
             }
@@ -152,37 +152,37 @@ module.exports.getFilteredProductController = (req,res)=>{
     } catch (error) {
         console.log(error);
         res.status(500).send({
-            success:false,
-            message:'Error in getting products',
+            success: false,
+            message: 'Error in getting products',
             error: error.message
         });
     }
 }
 
-module.exports.getSingleProductController = (req,res)=>{
+module.exports.getSingleProductController = (req, res) => {
     try {
         const sql = 'select * from product where slug=?';
-        connection.query(sql,[req.params.slug],(err,product)=>{
-            if(err){
-                res.status(501).send({
-                    success:false,
-                    message:'Error in getting single product',
+        connection.query(sql, [req.params.slug], (err, product) => {
+            if (err) {
+                return res.status(501).send({
+                    success: false,
+                    message: 'Error in getting single product',
                     err
                 });
             }
-            else{
-                res.status(200).send({
-                    success:true,
-                    message:'Single product fetched',
+            else {
+                return res.status(200).send({
+                    success: true,
+                    message: 'Single product fetched',
                     product
                 });
             }
         })
     } catch (error) {
         console.log(error);
-        res.status(500).send({
-            success:false,
-            message:'Error in getting single product',
+        return res.status(500).send({
+            success: false,
+            message: 'Error in getting single product',
             error
         });
     }
