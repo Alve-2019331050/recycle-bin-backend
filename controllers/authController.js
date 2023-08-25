@@ -132,7 +132,7 @@ module.exports.loginController = async (req, res) => {
 
 module.exports.logoutController = async (req, res) => {
     try {
-        return res.cookie("token", null, {
+        res.cookie("token", null, {
             expiresIn: new Date(Date.now()),
             httpOnly: true
         });

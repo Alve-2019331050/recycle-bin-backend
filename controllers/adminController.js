@@ -30,3 +30,27 @@ exports.getPendingProductController = (req, res) => {
         })
     }
 };
+
+
+//UPDATE PRODUCT STATUS || PUT
+exports.updateProductStatus = (req, res) => {
+    const productId = req.params.id;
+    const newStatus = req.body.status;
+
+    const sql = 'Update product SET status = ? WHERE p_id = ?';
+
+    connection.query(sql, [newStatus, productId], (err, result) => {
+        if (err) {
+            return res.status(500).send({
+                success: false,
+                message: 'Error in updating product status',
+                error: err
+            })
+        }
+
+        return res.status(200).send({
+            success: true,
+            message: 'Product status updated successfully.'
+        })
+    })
+}
