@@ -148,4 +148,80 @@ module.exports.deleteItem = (req, res) => {
             message: 'Could not delete item'
         });
     }
+};
+
+module.exports.placeOrderController = (req,res) => {
+    try {
+        const {cartItems} = req.body;
+        const {u_id} = req.body;
+        // console.log(cartItems,u_id);
+        const sql = 'insert into orders(u_id) values(?)';
+        connection.query(sql,[u_id],(err,data)=>{
+            if(err){
+                return res.status(200).send({
+                    success:false,
+                    message:'Error in placing order'
+                });
+            }
+            else{
+                var newSql = 'SELECT * FROM orders ORDER BY order_id DESC LIMIT 1;'
+                connection.query(newSql,[u_id],(nerr,ndata)=>{
+                    if(nerr){
+                        return res.status(200).send({
+                            success:false,
+                            message:'Error in placing order'
+                        });
+                    }
+                    else{
+                        const order_id = ndata[0].order_id;
+                        // console.log(order_id);
+                        newSql = 'insert into issues(order_id,p_id) values(?,?)';
+                        cartItems.map((item,index)=>{
+                            // console.log(item);
+                            return connection.query(newSql,[order_id,item.product.p_id],(nErr,nData)=>{
+                                console.log(nData);
+                                if(nErr){
+                                    return res.status(200).send({
+                                        success:false,
+                                        message:'Error in placing order'
+                                    });
+                                }
+                            });
+                        });
+                        return res.status(200).send({
+                            success:true
+                        })
+                    }
+                })
+            }
+        })
+    } catch (error) {
+        return res.status(500).send({
+            success:false,
+            message:'Error in placing order'
+        });
+    }  
+};
+
+module.exports.delete = (req,res)=>{
+    try {
+        const sql  = 'delete from cart where b_id=?';
+        connection.query(sql,[req.params.u_id],(err,data)=>{
+            if(err){
+                return res.status(200).send({
+                    success:false
+                });
+            }
+            else{
+                return res.status(200).send({
+                    success:true
+                });
+            }
+        })
+    } catch (error) {
+        return res.status(500).send({
+            success:false,
+            message:'Error in deleting'
+        });
+    }
 }
