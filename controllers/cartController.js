@@ -149,3 +149,11 @@ module.exports.deleteItem = (req, res) => {
         });
     }
 }
+
+module.exports.getUserOrderController = (req, res) => {
+
+}
+
+module.exports.getAdminOrderController = (req, res) => {
+
+}
