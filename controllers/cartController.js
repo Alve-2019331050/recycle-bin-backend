@@ -225,3 +225,31 @@ module.exports.delete = (req,res)=>{
         });
     }
 }
+
+module.exports.getUserOrderController = (req, res) => {
+    try {
+        const sql = 'select o.order_id as orderId,p.p from orders o join issues i on o.order_id = i.order_id where o.u_id=?';
+        connection.query(sql,[req.params.user_id],(err,data)=>{
+            if(err){
+                return res.status(200).send({
+                    success:false,
+                    message:'Error in fetching'
+                });
+            }
+            else{
+                return res.status(200).send({
+                    success:true
+                });
+            }
+        })
+    } catch (error) {
+        return res.status(500).send({
+            success:false,
+            message:'Error in fetching'
+        });
+    }
+}
+
+module.exports.getAdminOrderController = (req, res) => {
+
+}
