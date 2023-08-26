@@ -60,6 +60,7 @@ module.exports.getProductController = (req, res) => {
 
         //change made to get approved product
         const sql = 'select * from product where status = ?';
+        console.log(req.params.status);
         //change made to get approved product
         connection.query(sql, [req.params.status], (err, products) => {
             if (err) {
@@ -93,15 +94,15 @@ module.exports.getFilteredProductController = (req, res) => {
         const category = req.query.category;
         const price = req.query.price;
         // console.log(category,price);
-        var sql = 'select * from product';
+        var sql = 'select * from product where status = ?';
         var categoryArray = [];
         if (category && category.length)
             categoryArray = category.split(',');
         var priceArray = [];
         if (price && price.length)
             priceArray = price.split(',');
-        if (categoryArray.length || priceArray.length)
-            sql = sql.concat(' where');
+        if (categoryArray.length)
+            sql = sql.concat(' and');
         categoryArray.map((cat, index) => {
             if (index === 0)
                 sql = sql.concat(' (');
@@ -112,14 +113,13 @@ module.exports.getFilteredProductController = (req, res) => {
         if (categoryArray.length)
             sql = sql.concat(')');
         if (priceArray.length) {
-            sql = sql.concat(' ');
-            if (categoryArray.length)
-                sql = sql.concat('and ');
+            sql = sql.concat(' and ');
             sql = sql.concat('(price>=? and price<=?)');
         }
 
         console.log(sql);
         var values = [];
+        values.push('Approved');
         categoryArray.map((cat, index) => {
             values.push(cat);
         });
@@ -137,8 +137,6 @@ module.exports.getFilteredProductController = (req, res) => {
             values.push(mn);
             values.push(mx);
         }
-        //change made to get Approved product
-        //sql = sql.concat('and status = Approved');
 
         connection.query(sql, values, (err, products) => {
             if (err) {
