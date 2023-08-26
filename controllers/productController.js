@@ -57,8 +57,11 @@ module.exports.createProductController = (req, res) => {
 
 module.exports.getProductController = (req, res) => {
     try {
-        const sql = 'select * from product';
-        connection.query(sql, (err, products) => {
+
+        //change made to get approved product
+        const sql = 'select * from product where status = ?';
+        //change made to get approved product
+        connection.query(sql, [req.params.status], (err, products) => {
             if (err) {
                 return res.status(501).send({
                     success: false,
@@ -114,6 +117,7 @@ module.exports.getFilteredProductController = (req, res) => {
                 sql = sql.concat('and ');
             sql = sql.concat('(price>=? and price<=?)');
         }
+
         console.log(sql);
         var values = [];
         categoryArray.map((cat, index) => {
@@ -133,6 +137,9 @@ module.exports.getFilteredProductController = (req, res) => {
             values.push(mn);
             values.push(mx);
         }
+        //change made to get Approved product
+        //sql = sql.concat('and status = Approved');
+
         connection.query(sql, values, (err, products) => {
             if (err) {
                 res.status(501).send({
