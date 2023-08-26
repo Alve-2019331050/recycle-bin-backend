@@ -148,48 +148,48 @@ module.exports.deleteItem = (req, res) => {
             message: 'Could not delete item'
         });
     }
-};
+}
 
-module.exports.placeOrderController = (req,res) => {
+module.exports.placeOrderController = (req, res) => {
     try {
-        const {cartItems} = req.body;
-        const {u_id} = req.body;
+        const { cartItems } = req.body;
+        const { u_id } = req.body;
         // console.log(cartItems,u_id);
         const sql = 'insert into orders(u_id) values(?)';
-        connection.query(sql,[u_id],(err,data)=>{
-            if(err){
+        connection.query(sql, [u_id], (err, data) => {
+            if (err) {
                 return res.status(200).send({
-                    success:false,
-                    message:'Error in placing order'
+                    success: false,
+                    message: 'Error in placing order'
                 });
             }
-            else{
+            else {
                 var newSql = 'SELECT * FROM orders ORDER BY order_id DESC LIMIT 1;'
-                connection.query(newSql,[u_id],(nerr,ndata)=>{
-                    if(nerr){
+                connection.query(newSql, [u_id], (nerr, ndata) => {
+                    if (nerr) {
                         return res.status(200).send({
-                            success:false,
-                            message:'Error in placing order'
+                            success: false,
+                            message: 'Error in placing order'
                         });
                     }
-                    else{
+                    else {
                         const order_id = ndata[0].order_id;
                         // console.log(order_id);
                         newSql = 'insert into issues(order_id,p_id) values(?,?)';
-                        cartItems.map((item,index)=>{
+                        cartItems.map((item, index) => {
                             // console.log(item);
-                            return connection.query(newSql,[order_id,item.product.p_id],(nErr,nData)=>{
+                            return connection.query(newSql, [order_id, item.product.p_id], (nErr, nData) => {
                                 console.log(nData);
-                                if(nErr){
+                                if (nErr) {
                                     return res.status(200).send({
-                                        success:false,
-                                        message:'Error in placing order'
+                                        success: false,
+                                        message: 'Error in placing order'
                                     });
                                 }
                             });
                         });
                         return res.status(200).send({
-                            success:true
+                            success: true
                         })
                     }
                 })
@@ -197,55 +197,62 @@ module.exports.placeOrderController = (req,res) => {
         })
     } catch (error) {
         return res.status(500).send({
-            success:false,
-            message:'Error in placing order'
+            success: false,
+            message: 'Error in placing order'
         });
-    }  
+    }
 };
 
-module.exports.delete = (req,res)=>{
+module.exports.delete = (req, res) => {
     try {
-        const sql  = 'delete from cart where b_id=?';
-        connection.query(sql,[req.params.u_id],(err,data)=>{
-            if(err){
+        const sql = 'delete from cart where b_id=?';
+        connection.query(sql, [req.params.u_id], (err, data) => {
+            if (err) {
                 return res.status(200).send({
-                    success:false
+                    success: false
                 });
             }
-            else{
+            else {
                 return res.status(200).send({
-                    success:true
+                    success: true
                 });
             }
         })
     } catch (error) {
         return res.status(500).send({
-            success:false,
-            message:'Error in deleting'
+            success: false,
+            message: 'Error in deleting'
         });
     }
 }
 
+
 module.exports.getUserOrderController = (req, res) => {
     try {
-        const sql = 'select o.order_id as orderId,p.p from orders o join issues i on o.order_id = i.order_id where o.u_id=?';
-        connection.query(sql,[req.params.user_id],(err,data)=>{
-            if(err){
+        console.log('hi');
+        const sql = 'SELECT orders.order_id AS orderId,issues.p_id from orders JOIN issues ON orders.order_id = issues.order_id WHERE orders.u_id = ?'
+        connection.query(sql, [req.params.user_id], (err, data) => {
+            // console.log(err);
+            if (err) {
+
                 return res.status(200).send({
-                    success:false,
-                    message:'Error in fetching'
-                });
-            }
-            else{
+                    success: false,
+                    message: 'Error in fetching'
+                })
+            } else {
+                console.log(data);
                 return res.status(200).send({
-                    success:true
-                });
+                    success: true,
+                    data
+                })
             }
         })
+
     } catch (error) {
+        console.log(error);
         return res.status(500).send({
-            success:false,
-            message:'Error in fetching'
+            success: false,
+            message: 'Could not delete item'
         });
     }
 }
