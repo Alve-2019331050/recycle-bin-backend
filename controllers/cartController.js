@@ -230,7 +230,7 @@ module.exports.delete = (req, res) => {
 module.exports.getUserOrderController = (req, res) => {
     try {
         console.log('hi');
-        const sql = 'SELECT orders.order_id AS orderId,issues.p_id from orders JOIN issues ON orders.order_id = issues.order_id WHERE orders.u_id = ?'
+        const sql = 'SELECT orders.order_id AS orderId,product.name from orders JOIN issues ON orders.order_id = issues.order_id JOIN product ON issues.p_id = product.p_id WHERE orders.u_id = ?'
         connection.query(sql, [req.params.user_id], (err, data) => {
             // console.log(err);
             if (err) {
@@ -258,5 +258,31 @@ module.exports.getUserOrderController = (req, res) => {
 }
 
 module.exports.getAdminOrderController = (req, res) => {
+    try {
+        console.log('hi');
+        const sql = 'SELECT orders.order_id AS orderId,orders.u_id,product.name from orders JOIN issues ON orders.order_id = issues.order_id JOIN product ON issues.p_id = product.p_id'
+        connection.query(sql, (err, data) => {
+            // console.log(err);
+            if (err) {
 
+                return res.status(200).send({
+                    success: false,
+                    message: 'Error in fetching'
+                })
+            } else {
+                console.log(data);
+                return res.status(200).send({
+                    success: true,
+                    data
+                })
+            }
+        })
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            success: false,
+            message: 'Could not delete item'
+        });
+    }
 }
